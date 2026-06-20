@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { Outlet, NavLink, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Outlet, NavLink, Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, BookOpen, ChefHat, Calculator, Scale,
-  Package, Receipt, ShoppingCart, Bot, Download, Menu, X, Shield
+  Package, Receipt, ShoppingCart, Bot, Download, Menu, X, Shield, HelpCircle, Moon, Sun
 } from 'lucide-react'
 
 const NAV = [
@@ -16,12 +16,19 @@ const NAV = [
   { to: '/compras',    icon: Receipt,          label: 'Compras' },
   { to: '/ia',         icon: Bot,              label: 'Consultar IA' },
   { to: '/fiscal',     icon: Shield,           label: 'Config. Fiscal', badge: 'DGI' },
+  { to: '/ayuda',      icon: HelpCircle,       label: 'Ayuda' },
   { to: '/exportar',   icon: Download,         label: 'Exportar' },
 ]
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true')
   const location = useLocation()
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode)
+    localStorage.setItem('darkMode', darkMode)
+  }, [darkMode])
   const currentPage = NAV.find(n => location.pathname.startsWith(n.to))?.label || 'Master Baker'
 
   return (
@@ -29,15 +36,17 @@ export default function Layout() {
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/30 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-30 w-56 bg-white border-r border-gray-100 flex flex-col transition-transform duration-200 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#263D4F' }}>
-            <img src="/branding/logo-emblema.png" alt="Master Baker" className="w-9 h-9 object-contain" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold leading-tight tracking-wide" style={{ color: '#263D4F' }}>MASTER BAKER</div>
-            <div className="text-[10px] text-gray-400 leading-tight">Gestión Inteligente de Panadería</div>
-          </div>
+      <aside className={`fixed lg:static inset-y-0 left-0 z-30 w-56 border-r flex flex-col transition-transform duration-200 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`} style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+        <div className="flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+          <Link to="/dashboard" className="flex items-center gap-3 flex-1 min-w-0" onClick={() => setSidebarOpen(false)}>
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#263D4F' }}>
+              <img src="/branding/logo-emblema.png" alt="Master Baker" className="w-9 h-9 object-contain" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold leading-tight tracking-wide" style={{ color: '#263D4F' }}>MASTER BAKER</div>
+              <div className="text-[10px] text-gray-400 leading-tight">Gestión Inteligente de Panadería</div>
+            </div>
+          </Link>
           <button className="ml-auto lg:hidden text-gray-400" onClick={() => setSidebarOpen(false)}>
             <X size={16} />
           </button>
@@ -60,21 +69,28 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
-        <div className="px-4 py-3 border-t border-gray-100">
-          <div className="text-xs text-gray-400">v2.7 · Margen objetivo ≥57%</div>
+        <div className="px-4 py-3 border-t" style={{ borderColor: 'var(--color-border)' }}>
+          <div className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>v3.2 · Margen objetivo ≥57%</div>
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3 flex-shrink-0">
+        <header className="border-b px-4 py-3 flex items-center gap-3 flex-shrink-0" style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
           <button className="lg:hidden text-gray-500 hover:text-gray-700" onClick={() => setSidebarOpen(true)}>
             <Menu size={20} />
           </button>
-          <h1 className="text-sm font-semibold text-gray-900">{currentPage}</h1>
-          <div className="ml-auto">
+          <h1 className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>{currentPage}</h1>
+          <div className="ml-auto flex items-center gap-2">
             <span className="text-xs px-2 py-1 rounded-md font-medium" style={{ background: '#EAF3DE', color: '#27500A' }}>
               Margen objetivo: ≥57%
             </span>
+            <button
+              onClick={() => setDarkMode(d => !d)}
+              className="p-1.5 rounded-lg transition-colors"
+              style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-secondary)' }}
+              title={darkMode ? 'Modo claro' : 'Modo oscuro'}>
+              {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
           </div>
         </header>
         <main className="flex-1 overflow-y-auto p-4">
